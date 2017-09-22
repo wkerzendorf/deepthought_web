@@ -1,0 +1,31 @@
+{% extends "base" %}
+{% block content %}
+<div class="row">
+<div class="col-xs-12">
+<h2>Results for <strong>{{ identifier }}</strong></h2>
+
+<table class="table table-hover">
+	<tr>
+		<th>Identifier</th>
+		<th>Title</th>
+		<th>Similarity</th>
+	</tr>
+	{% for row in data_table %}
+	<tr>
+		<td>
+			<span>
+			<a href="{{ row['link'] }}" target="_blank">{{ row['identifier'] }}</a> 
+			<small>
+			(<a href="https://ui.adsabs.harvard.edu/#search/q=arxiv%3A{{ row['identifier']|urlencode() }}" target="_blank">ADS</a>)
+			</small>
+			</span>
+		</td>
+		<td>{{ row['title'] }}</td>
+		<td>{{ row['similarity']|round(2) }}</td>
+	</tr>
+	{% endfor %}
+
+</table>
+</div>
+</div>
+{% endblock %}

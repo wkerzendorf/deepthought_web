@@ -5,8 +5,34 @@ import cherrypy
 import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
-cherrypy.server.socket_host = '0.0.0.0'
-cherrypy.config.update({'server.socket_port': 7071})
+import os
+from jinja2 import Environment, FileSystemLoader
+
+# cherrypy.server.socket_host = '0.0.0.0'
+# cherrypy.config.update({'server.socket_port': 7071})
+# path = os.path.abspath(os.path.dirname(__file__))
+# cherrypy.config.update({'/css' : {
+#     'tools.staticdir.on'  : True,
+#     'tools.staticdir.dir' : os.path.join(path, 'css')
+#   }});
+path = os.path.abspath(os.path.dirname(__file__))
+config = {
+  'global' : {
+    'server.socket_host' : '0.0.0.0',
+    'server.socket_port' : 7071,
+    'server.thread_pool' : 8
+  },
+  '/css' : {
+    'tools.staticdir.on'  : True,
+    'tools.staticdir.dir' : os.path.join(path, 'css')
+  },
+  '/fonts' : {
+    'tools.staticdir.on'  : True,
+    'tools.staticdir.dir' : os.path.join(path, 'fonts')
+  }
+}
+env = Environment(loader=FileSystemLoader('templates'))
+
 class DeepThought(object):
 
     def __init__(self):
@@ -19,20 +45,9 @@ class DeepThought(object):
 
     @cherrypy.expose
     def index(self):
-        return """<html>
-          <head></head>
-          <body>
-            <form method="get" action="arxiv_search">
-              <input type="text" value="1207.4481" name="identifier" />
-              <button type="submit">Similar Papers</button>
-            </form>
-            <form method="get" action="text_search">
-              <input type="text" value="my astronomy paper" name="text" />
-              <button type="submit">Similar Papers</button>
-            </form>
-
-          </body>
-        </html>"""
+        template = env.get_template('index.html')
+        return template.render()
+        
 
     def _generate_table(self, ranked_similarity, ranked_identifiers):
         if np.sum(ranked_similarity) < 1e-10: return "No matches found"
@@ -60,7 +75,8 @@ class DeepThought(object):
                 break
         data_table = pd.DataFrame(zip(table_identifier, table_title, table_link, table_similarity),
                                     columns = ['identifier', 'title', 'link', 'similarity'])
-        return data_table.to_html()
+
+        return data_table.to_dict('records')
 
     def _get_similar_documents(self, test_document):
         similarity = np.squeeze((self.X_tfidf * test_document.T).A)
@@ -77,7 +93,9 @@ class DeepThought(object):
             test_document = self.X_tfidf[test_document_id]
             ranked_similarity, ranked_identifiers = self._get_similar_documents(test_document)
 
-            return self._generate_table(ranked_similarity, ranked_identifiers)
+            template = env.get_template('arxiv_search')
+            return template.render(identifier=identifier, data_table=self._generate_table(ranked_similarity, ranked_identifiers))
+            # return self._generate_table(ranked_similarity, ranked_identifiers)
         #return ''.join(random.sample(string.hexdigits, int(length)))
     @cherrypy.expose
     def text_search(self, text='astronomy galaxy star'):
@@ -101,4 +119,5 @@ if __name__ == '__main__':
     print 'loading...'
     dt = DeepThought()
     print "loading done"
-    cherrypy.quickstart(dt)
+    cherrypy.quickstart(dt, '/', config)
+    # cherrypy.quickstart(dt)

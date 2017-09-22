@@ -1,0 +1,29 @@
+{% extends "base" %}
+{% block content %}
+  <div class="row">
+    <!-- <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3"> -->
+    <div class="col-xs-6">
+    <form method="get" action="arxiv_search" class="form-inline">
+      <label for="identifier">Search by arXiv ID:</label>
+      <input type="text" value="1207.4481" name="identifier" id="identifier" class="form-control">
+      <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span> Similar Papers</button>
+    </form>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-xs-6">
+      <hr>
+    </div>
+  </div>
+  
+  <div class="row">  
+    <div class="col-xs-6">
+    <form method="get" action="text_search" class="form-inline">
+      <label for="text">Or by fulltext:</label>
+      <input type="text" value="my astronomy paper" name="text" id="text" class="form-control">
+      <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span> Similar Papers</button>
+    </form>
+    </div>
+  </div>
+{% endblock %}

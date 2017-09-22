@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Deepthought Web</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+</head>
+
+<body>
+<div class="container">
+
+  <div class="row">
+    <div class="col-xs-12">
+      <h1>Deepthought Web</h1>
+      <p class="lead">Find similar astronomy papers on arXiv.</p>
+    </div>
+  </div>
+
+{% block content %}
+{% endblock %}
+
+</div>
+</body>
+
+</html>
