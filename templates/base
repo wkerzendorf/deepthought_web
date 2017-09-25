@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Deepthought Web</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+</head>
+<style>
+.page-header a {
+  text-decoration: none;
+  color: #333;
+}
+.page-header a:hover {
+  text-decoration: none;
+  color: #333;
+}
+</style>
+
+<body>
+<div class="container">
+  <div class="page-header">
+      <h1><a href="/">Deepthought Web</a></h1>
+      <p class="lead">Find similar astronomy papers on arXiv.</p>
+  </div>
+
+  <div class="row" style="margin-bottom: 10px"></div>
+
+{% block content %}
+{% endblock %}
+
+</div>
+</body>
+
+</html>
