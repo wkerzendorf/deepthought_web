@@ -1,8 +1,39 @@
 {% extends "base" %}
 {% block content %}
+<div class="row form-inline">
+<div class="col-xs-4 col-xs-offset-2">
+	<form method="get" action="arxiv_search" >
+		<label for="identifier">arXiv ID:</label>
+		<input type="text" value="{{ identifier }}" name="identifier" id="identifier" class="form-control">
+		<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+	</form>
+</div>
+	
+<div class="col-xs-4">
+	<form method="get" action="text_search" >
+		<label for="text">Fulltext:</label>
+		<input type="text" value="{{ search_str }}" name="text" id="text" class="form-control">
+		<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+    </form>
+</div>
+</div>
+
+{% if unknown_id %}
+<div class="row">
+<div class="col-xs-12" style="margin-top: 20px">
+<h4 class="text-danger">Unknown identifier "{{ identifier }}"--please try again.</h4>
+</div>
+</div>
+
+{% else %}
+
 <div class="row">
 <div class="col-xs-12">
-<h2>Results for <strong>{{ identifier }}</strong></h2>
+{% if identifier %}
+	<h2>Results for <strong>{{ identifier }}</strong></h2>
+{% else %}
+	<h2>Results for "<strong>{{ search_str }}</strong>"</h2>
+{% endif %}
 
 <table class="table table-hover">
 	<tr>
@@ -14,18 +45,26 @@
 	<tr>
 		<td>
 			<span>
-			<a href="{{ row['link'] }}" target="_blank">{{ row['identifier'] }}</a> 
+			<a href="{{ row['link'] }}" title="{{ row['identifier'] }} on arXiv" target="_blank">{{ row['identifier'] }}</a> 
 			<small>
-			(<a href="https://ui.adsabs.harvard.edu/#search/q=arxiv%3A{{ row['identifier']|urlencode() }}" target="_blank">ADS</a>)
+			(<a href="https://ui.adsabs.harvard.edu/#search/q=arxiv%3A{{ row['identifier'].replace('/', '%2f') }}" title="search {{ row['identifier'] }} on ADS" target="_blank">ADS</a>)
 			</small>
 			</span>
 		</td>
-		<td>{{ row['title'] }}</td>
-		<td>{{ row['similarity']|round(2) }}</td>
+		<td>
+		{% if row['title'] == 'Title N/A' %}
+			<span class="text-muted"><em>{{ row['title'] }}</em></span>
+		{% else %}
+			{{ row['title'] }}
+		{% endif %}
+		</td>
+		<td>{{ '{0:0.3f}'.format(row['similarity']) }}</td>
 	</tr>
 	{% endfor %}
 
 </table>
 </div>
 </div>
+
+{% endif %} {# /if !unknown_id #}
 {% endblock %}
