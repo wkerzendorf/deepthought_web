@@ -25,11 +25,12 @@ config = {
     'tools.staticdir.dir' : os.path.join(path, 'fonts')
   }
 }
-env = Environment(loader=FileSystemLoader('templates'))
+env = Environment(loader=FileSystemLoader(os.path.join(path, 'templates')))
 
 class DeepThought(object):
 
     def __init__(self):
+        return
         self.all_identifiers = pickle.load(open('all_identifiers.pkl'))
         self.X_tfidf = load_sparse_csr('x_tfidf.csr.npz')
         self.meta = pickle.load(open('meta.pkl'))
@@ -70,7 +71,7 @@ class DeepThought(object):
 
     def _generate_table(self, ranked_similarity, ranked_identifiers):
         if np.sum(ranked_similarity) < 1e-10: return "No matches found"
-        print ranked_similarity, ranked_identifiers
+        print (ranked_similarity, ranked_identifiers)
         j = 0
 
         table_similarity = []
@@ -91,7 +92,7 @@ class DeepThought(object):
                 table_title.append('Title N/A')
             table_link.append('https://arxiv.org/abs/{0}'.format(identifier))
             j+=1
-            print 'at', j
+            print('at', j)
             if j > 50:
                 break
         data_table = pd.DataFrame(zip(table_identifier, table_title, table_link, table_similarity),
@@ -116,9 +117,12 @@ def load_sparse_csr(filename):
     return csr_matrix((  loader['data'], loader['indices'], loader['indptr']),
                          shape = loader['shape'])
 
-if __name__ == '__main__':
-    print 'loading...'
-    dt = DeepThought()
-    print "loading done"
-    cherrypy.quickstart(dt, '/', config)
+dt = DeepThought()
+cherrypy.quickstart(dt, '/', config)
+
+#cherrypy.tree.mount(my_controller.Root(), script_name=´´, config=app_conf)
+#if __name__ == '__main__':
+#    print('loading...')
+
+#    print("loading done")
     # cherrypy.quickstart(dt)
