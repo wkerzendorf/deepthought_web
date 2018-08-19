@@ -67,7 +67,7 @@ class SKTFIDFCompare(object):
 
 class DeepThought(object):
 
-    DATASET_FNAME = 'dt_201806_tfidf_skl_testing_small.h5'
+    DATASET_FNAME = 'dt_201806_tfidf_skl.h5'
     def __init__(self):
         print('Loading Dataset')
         self.dt_tfidf = SKTFIDFCompare.from_hdf(self.DATASET_FNAME)
