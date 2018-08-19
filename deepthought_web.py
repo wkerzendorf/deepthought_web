@@ -67,7 +67,7 @@ class SKTFIDFCompare(object):
 
 class DeepThought(object):
 
-    DATASET_FNAME = 'dt_201806_tfidf_skl.h5'
+    DATASET_FNAME = 'dt_201806_tfidf_skl_testing_small.h5'
     def __init__(self):
         print('Loading Dataset')
         self.dt_tfidf = SKTFIDFCompare.from_hdf(self.DATASET_FNAME)
@@ -108,45 +108,6 @@ class DeepThought(object):
 
         #template = env.get_template('arxiv_search')
         #return template.render(search_str=text, data_table=data_table)
-
-
-    def _generate_table(self, ranked_similarity, ranked_identifiers):
-        if np.sum(ranked_similarity) < 1e-10: return "No matches found"
-        print (ranked_similarity, ranked_identifiers)
-        j = 0
-
-        table_similarity = []
-        table_identifier = []
-        table_title = []
-        table_link = []
-        for simil, identifier in zip(ranked_similarity, ranked_identifiers):
-            table_similarity.append(simil)
-            # older ID's look like "astro-ph0410673"; they are more useful with the slash
-            identifier = identifier if '.' in identifier else '{}/{}'.format(identifier[:8], identifier[8:])
-            table_identifier.append(identifier)
-            if identifier in self.meta:
-                title = str(self.meta[identifier]['title'])
-                # strip brackets etc.:
-                title = re.sub(r'(\[\'|\[\"|\'\]|\"\]|\\n|\n)', "", title)
-                table_title.append(title)
-            else:
-                table_title.append('Title N/A')
-            table_link.append('https://arxiv.org/abs/{0}'.format(identifier))
-            j+=1
-            print('at', j)
-            if j > 50:
-                break
-        data_table = pd.DataFrame(zip(table_identifier, table_title, table_link, table_similarity),
-                                    columns = ['identifier', 'title', 'link', 'similarity'])
-        return data_table.to_dict('records')
-
-
-    def _get_similar_documents(self, test_document):
-        similarity = np.squeeze((self.X_tfidf * test_document.T).A)
-        similarity_argsort = np.argsort(similarity)[::-1]
-        ranked_similarity = similarity[similarity_argsort]
-        ranked_identifiers = np.array(self.all_identifiers)[similarity_argsort]
-        return ranked_similarity, ranked_identifiers
 
 dt_app = DeepThought()
 cherrypy.quickstart(dt_app, '/deepthought', config=config)
