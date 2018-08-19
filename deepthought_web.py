@@ -13,10 +13,12 @@ from jinja2 import Environment, FileSystemLoader
 path = os.path.abspath(os.path.dirname(__file__))
 config = {
   'global' : {
+    'tools.proxy.on':True,
     'server.socket_host' : '0.0.0.0',
     'server.socket_port' : 7071,
     'server.thread_pool' : 8
   },
+  '/' : {'tools.staticdir.root':path},
   '/css' : {
     'tools.staticdir.on'  : True,
     'tools.staticdir.dir' : os.path.join(path, 'css')
@@ -26,7 +28,7 @@ config = {
     'tools.staticdir.dir' : os.path.join(path, 'fonts')
   }
 }
-env = Environment(loader=FileSystemLoader('templates'))
+env = Environment(loader=FileSystemLoader(os.path.join(path, 'templates')))
 
 
 class SKTFIDFCompare(object):
@@ -65,9 +67,11 @@ class SKTFIDFCompare(object):
 
 class DeepThought(object):
 
+    DATASET_FNAME = 'dt_201806_tfidf_skl.h5'
     def __init__(self):
-        self.dt_tfidf = SKTFIDFCompare.from_hdf('dt_201806_tfidf_skl.h5')
-
+        print('Loading Dataset')
+        self.dt_tfidf = SKTFIDFCompare.from_hdf(self.DATASET_FNAME)
+        print('Loaded Dataset')
 
     @cherrypy.expose
     def index(self):
@@ -144,18 +148,6 @@ class DeepThought(object):
         ranked_identifiers = np.array(self.all_identifiers)[similarity_argsort]
         return ranked_similarity, ranked_identifiers
 
-if __name__ == '__main__':
-    print('loading...')
-    dt = DeepThought()
-    print("loading done")
-    cherrypy.quickstart(dt, '/', config)
-    # cherrypy.quickstart(dt)
+dt_app = DeepThought()
+cherrypy.quickstart(dt_app, '/deepthought', config=config)
 
-#dt_app = cherrypy.tree.mount(DeepThought())
-#print(cherrypy.config, dt_app.config, cherrypy.request.app.config['deepthought'])
-
-#cherrypy.quickstart(dt, '/')
-
-#cherrypy.engine.start()
-#print(cherrypy.config, dt_app.config, cherrypy.request.app.config['deepthought'])
-#cherrypy.engine.block()
